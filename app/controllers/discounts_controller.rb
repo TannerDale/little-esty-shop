@@ -30,6 +30,9 @@ class DiscountsController < ApplicationController
   end
 
   def destroy
+    @discount.destroy
+
+    redirect_to merchant_discounts_path(@merchant)
   end
 
   private
