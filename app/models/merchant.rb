@@ -12,10 +12,6 @@ class Merchant < ApplicationRecord
 
   enum status: %w[enabled disabled]
 
-  scope :by_status, lambda { |status|
-    where(status: status)
-  }
-
   def self.next_id
     maximum(:id).next || 1
   end

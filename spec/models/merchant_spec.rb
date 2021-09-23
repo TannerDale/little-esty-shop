@@ -23,11 +23,11 @@ RSpec.describe Merchant, type: :model do
       end
 
       it 'has disabled' do
-        expect(Merchant.by_status(1)).to eq([@merch2, @merch4])
+        expect(Merchant.disabled).to eq([@merch2, @merch4])
       end
 
       it 'has enabled' do
-        expect(Merchant.by_status(0)).to eq([@merch1, @merch3])
+        expect(Merchant.enabled).to eq([@merch1, @merch3])
       end
     end
   end
