@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
   root to: 'welcome#index'
+
   resources :merchants, only: :index do
     get '/dashboard', controller: :merchants, action: :show, as: 'dashboard'
-    resources :items, except: [:delete]
+    resources :items, except: :delete
     resources :invoices, only: %i[index show]
-    resources :invoice_items, only: [:update]
+    resources :invoice_items, only: :update
     resources :discounts
   end
 
