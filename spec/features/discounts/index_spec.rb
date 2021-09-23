@@ -22,7 +22,7 @@ RSpec.describe 'discounts index' do
     it 'has all of the discounts and their info' do
       [discount1, discount2, discount3].each do |discount|
         expect(page).to have_content(discount.quantity)
-        expect(page).to have_content(discount.percentage.fdiv(100))
+        expect(page).to have_content(discount.percentage)
       end
     end
 
@@ -47,6 +47,14 @@ RSpec.describe 'discounts index' do
       click_link 'New Discount'
 
       expect(current_path).to eq(new_merchant_discount_path(merchant))
+    end
+
+    it 'has a link to destroy a discount' do
+      within "#discount-#{discount1.id}"  do
+        click_on 'Delete Discount'
+      end
+
+      expect(Discount.count).to eq(2)
     end
   end
 end
