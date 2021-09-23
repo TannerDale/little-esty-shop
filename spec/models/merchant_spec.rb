@@ -16,18 +16,18 @@ RSpec.describe Merchant, type: :model do
   describe 'class methods/scopes' do
     describe 'by status' do
       before :each do
-        @merch1 = create :merchant, { status: 'enabled' }
+        @merch1 = create :merchant, { status: 0 }
         @merch2 = create :merchant
-        @merch3 = create :merchant, { status: 'enabled' }
+        @merch3 = create :merchant, { status: 0 }
         @merch4 = create :merchant
       end
 
       it 'has disabled' do
-        expect(Merchant.by_status('disabled')).to eq([@merch2, @merch4])
+        expect(Merchant.by_status(1)).to eq([@merch2, @merch4])
       end
 
       it 'has enabled' do
-        expect(Merchant.by_status('enabled')).to eq([@merch1, @merch3])
+        expect(Merchant.by_status(0)).to eq([@merch1, @merch3])
       end
     end
   end

@@ -10,6 +10,8 @@ class Merchant < ApplicationRecord
   has_many :transactions, through: :invoices
   has_many :customers, through: :invoices
 
+  enum status: %w[enabled disabled]
+
   scope :by_status, lambda { |status|
     where(status: status)
   }
