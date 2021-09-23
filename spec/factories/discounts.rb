@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :discount do
-    percentage { 1 }
-    quantity { 1 }
-    merchant { nil }
+    association :merchant
+    percentage { Faker::Number.number(digits: 2) }
+    quantity { Faker::Number.between(from: 2, to: 5) }
   end
 end
