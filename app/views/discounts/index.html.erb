@@ -1,6 +1,17 @@
 <h1>Discounts for <%= @merchant.name %></h1>
 
+<div id="upcoming-holidays">
+  <ul>
+  <% @next_holidays.each do |holiday| %>
+      <li><%= holiday.name %> - <%= holiday.date.strftime('%b %d, %Y') %></li>
+  <% end %>
+  </ul>
+</div>
+<br/>
 <% @discounts.each do |discount| %>
-  <p>Quantity Threshhold: <%= discount.quantity %></p>
-  <p>Percentage Off: <%= discount.percentage.fdiv(100) %>%</p>
+  <div id="discount-<%= discount.id %>">
+    <p>Quantity Threshhold: <%= discount.quantity %></p>
+    <p>Percentage Off: <%= discount.percentage.fdiv(100) %>%</p>
+    <%= link_to 'Discount Page', merchant_discount_path(@merchant, discount) %>
+  </div>
 <% end %>
