@@ -42,5 +42,11 @@ RSpec.describe 'discounts index' do
         end
       end
     end
+
+    it 'has a link to make a new discount' do
+      click_link 'New Discount'
+
+      expect(current_path).to eq(new_merchant_discount_path(merchant))
+    end
   end
 end

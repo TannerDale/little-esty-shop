@@ -1,5 +1,5 @@
 <h1>Discounts for <%= @merchant.name %></h1>
-
+<%= link_to 'New Discount', new_merchant_discount_path(@merchant) %>
 <div id="upcoming-holidays">
   <ul>
   <% @next_holidays.each do |holiday| %>
