@@ -1,0 +1,6 @@
+<h1>Discounts for <%= @merchant.name %></h1>
+
+<% @discounts.each do |discount| %>
+  <p>Quantity Threshhold: <%= discount.quantity %></p>
+  <p>Percentage Off: <%= discount.percentage.fdiv(100) %>%</p>
+<% end %>
