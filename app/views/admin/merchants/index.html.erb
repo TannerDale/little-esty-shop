@@ -35,7 +35,7 @@
   <h3>Enabled</h3>
   <table class="table">
     <tbody>
-      <% @merchants.by_status('enabled').each do |merch| %>
+      <% @merchants.enabled.each do |merch| %>
       <span id="merch-<%= merch.id %>">
         <tr>
         <td><%= link_to merch.name, admin_merchant_path(merch) %></td>
@@ -50,7 +50,7 @@
   <h3>Disabled</h3>
   <table class="table">
     <tbody>
-      <% @merchants.by_status('disabled').each do |merch| %>
+      <% @merchants.disabled.each do |merch| %>
       <span id="merch-<%= merch.id %>">
       <tr>
         <td><%= link_to merch.name, admin_merchant_path(merch) %></td>
