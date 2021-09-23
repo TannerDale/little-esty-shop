@@ -10,9 +10,18 @@ class DiscountsController < ApplicationController
   def show; end
 
   def new
+    @discount = Discount.new
   end
 
   def create
+    discount = Discount.new(discount_params.merge({ merchant_id: params[:merchant_id] }))
+    if discount.save
+      flash[:success] = 'Discount Created'
+      redirect_to merchant_discounts_path(@merchant)
+    else
+      flash[:alert] = 'Creation Failed'
+      redirect_to new_merchant_discount_path
+    end
   end
 
   def edit; end
@@ -24,6 +33,10 @@ class DiscountsController < ApplicationController
   end
 
   private
+
+  def discount_params
+    params.require(:discount).permit(:quantity, :percentage)
+  end
 
   def current_discount
     @discount = Discount.find(params[:id])

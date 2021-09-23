@@ -22,7 +22,7 @@ RSpec.describe 'discounts index' do
     it 'has all of the discounts and their info' do
       [discount1, discount2, discount3].each do |discount|
         expect(page).to have_content(discount.quantity)
-        expect(page).to have_content(discount.percentage.fdiv(100))
+        expect(page).to have_content(discount.percentage)
       end
     end
 
