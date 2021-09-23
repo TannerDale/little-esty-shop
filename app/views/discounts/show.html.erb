@@ -2,3 +2,4 @@
 
 <p>Quantity Threshhold: <%= @discount.quantity %></p>
 <p>Percentage Off: <%= @discount.percentage %>%</p>
+<%= link_to 'Edit Discount', edit_merchant_discount_path(@merchant, @discount) %>

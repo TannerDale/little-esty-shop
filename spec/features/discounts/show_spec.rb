@@ -13,5 +13,11 @@ RSpec.describe 'Merchant discount show' do
       expect(page).to have_content("Quantity Threshhold: #{discount.quantity}")
       expect(page).to have_content("Percentage Off: #{discount.percentage}%")
     end
+
+    it 'has a link to edit the discount' do
+      click_on 'Edit Discount'
+
+      expect(current_path).to eq(edit_merchant_discount_path(merchant, discount))
+    end
   end
 end

@@ -28,5 +28,23 @@ RSpec.describe 'discounts new' do
       expect(current_path).to eq(merchant_discounts_path(merchant))
       expect(page).to have_content('25%')
     end
+
+    it 'can reject invalid discounts' do
+      within '#form' do
+        fill_in :discount_quantity, with: 10
+
+        click_on 'Create Discount'
+      end
+
+      expect(current_path).to eq(new_merchant_discount_path(merchant))
+
+      within '#form' do
+        fill_in :discount_percentage, with: 10
+
+        click_on 'Create Discount'
+      end
+
+      expect(current_path).to eq(new_merchant_discount_path(merchant))
+    end
   end
 end
