@@ -11,7 +11,7 @@ class Customer < ApplicationRecord
 
   def self.top_5_customers
     joins(:transactions)
-      .merge(Transaction.successful)
+      .merge(Transaction.success)
       .group(:id)
       .limit(5)
       .merge(Invoice.transactions_count)
@@ -19,7 +19,7 @@ class Customer < ApplicationRecord
       .full_names
   end
 
-  scope :full_names, lambda {
+  scope :full_names, -> {
     select("customers.first_name || ' ' || customers.last_name AS customer_name")
   }
 

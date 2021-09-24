@@ -19,11 +19,11 @@ class Invoice < ApplicationRecord
       .distinct
   end
 
-  scope :transactions_count, lambda {
+  scope :transactions_count, -> {
     select('COUNT(transactions.id) AS transaction_count')
   }
 
-  scope :total_revenues, lambda {
+  scope :total_revenues, -> {
     select('SUM(invoice_items.unit_price * invoice_items.quantity) AS revenue')
   }
 
