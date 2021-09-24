@@ -19,11 +19,12 @@ class Merchant < ApplicationRecord
 
   def self.top_five_merchants
     joins(:transactions)
-      .merge(Transaction.successful)
+      .merge(Transaction.success)
       .select(:name, 'MAX(invoices.created_at) AS date')
       .merge(Invoice.total_revenues)
       .group(:id)
-      .order(revenue: :desc).limit(5)
+      .order(revenue: :desc)
+      .limit(5)
   end
 
   def items_ready_to_ship
@@ -39,21 +40,23 @@ class Merchant < ApplicationRecord
 
   def fav_customers
     transactions
-      .successful
+      .success
       .joins(invoice: :customer)
       .group('customers.id')
       .merge(Customer.full_names)
       .merge(Invoice.transactions_count)
-      .order(transaction_count: :desc).limit(5)
+      .order(transaction_count: :desc)
+      .limit(5)
   end
 
   def top_five_items
     items
       .joins(:transactions)
-      .merge(Transaction.successful)
+      .merge(Transaction.success)
       .select('items.*, MAX(invoices.created_at) AS date')
       .merge(Invoice.total_revenues)
       .group(:id)
-      .order(revenue: :desc).limit(5)
+      .order(revenue: :desc)
+      .limit(5)
   end
 end
