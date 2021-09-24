@@ -16,7 +16,7 @@ RSpec.describe Transaction, type: :model do
     end
 
     it 'successful scope returns successful results' do
-      expect(Transaction.successful).to eq([transaction])
+      expect(Transaction.success).to eq([transaction])
     end
   end
 end
