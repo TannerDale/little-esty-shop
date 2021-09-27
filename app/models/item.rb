@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Item < ApplicationRecord
-  self.primary_key = :id
-
   validates_presence_of :name
 
   belongs_to :merchant

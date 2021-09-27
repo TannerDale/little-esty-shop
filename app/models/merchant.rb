@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Merchant < ApplicationRecord
-  self.primary_key = :id
   validates_presence_of :name
 
   has_many :discounts
