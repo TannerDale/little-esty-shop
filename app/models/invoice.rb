@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Invoice < ApplicationRecord
-  self.primary_key = :id
+  include ::InvoiceConcern
 
   belongs_to :customer
   has_many :invoice_items, dependent: :destroy
@@ -29,5 +29,13 @@ class Invoice < ApplicationRecord
 
   def total_revenue
     invoice_items.revenue
+  end
+
+  def inv_item_discounts
+    invoice_items.applicable_discounts
+  end
+
+  def discounts_and_discounted_total
+    discounted_info
   end
 end
