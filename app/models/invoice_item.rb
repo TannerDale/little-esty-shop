@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class InvoiceItem < ApplicationRecord
-  self.primary_key = :id
-
   belongs_to :invoice
   belongs_to :item
   has_one :merchant, through: :item
@@ -21,17 +19,14 @@ class InvoiceItem < ApplicationRecord
     sum('unit_price * quantity')
   }
 
-  scope :discounted, -> {
-    quantities
-      .joins(:transactions, :discounts)
-      .group('discounts.id, invoice_items.item_id')
-      .select('discounts.*, invoice_items.item_id AS discount_item')
-      .merge(Transaction.success)
-      .merge(Discount.applicable)
-      .merge(Discount.ordered_percentage)
+  scope :applicable_discounts, -> {
+    joins(item: :discounts)
+      .where('invoice_items.quantity >= discounts.quantity')
+      .select('discounts.id AS discount, discounts.percentage AS percentage, invoice_items.*')
+      .order(percentage: :desc)
   }
 
-  scope :quantities, -> {
-    select('SUM(invoice_items.quantity) AS amount')
-  }
+  def revenue
+    unit_price * quantity
+  end
 end
