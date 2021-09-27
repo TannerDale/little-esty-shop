@@ -1,7 +1,7 @@
 class HolidayService
   class << self
     def next_three
-      upcoming_holidays[..3].map do |data|
+      upcoming_holidays[..2].map do |data|
         HolidayPoro.new(data)
       end
     end
