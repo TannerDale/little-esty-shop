@@ -60,4 +60,56 @@ RSpec.describe 'Merchant Invoice Show Page' do
       end
     end
   end
+
+  describe 'discounts' do
+    describe 'with discounts' do
+      describe 'example 5 pt 2' do
+        let!(:customer) { create :customer }
+        let!(:invoice) { create :invoice, { customer_id: customer.id } }
+        let!(:merchantA) { create :merchant }
+        let!(:merchantB) { create :merchant }
+
+        let!(:itemA1) { create :item, { merchant_id: merchantA.id } }
+        let!(:itemA2) { create :item, { merchant_id: merchantA.id } }
+        let!(:itemB) { create :item, { merchant_id: merchantB.id } }
+
+        # 12
+        let!(:inv_itemA1) { create :invoice_item, { item_id: itemA1.id, invoice_id: invoice.id, quantity: 12, unit_price: 100 } }
+        # 15
+        let!(:inv_itemA2) { create :invoice_item, { item_id: itemA2.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+        # 15
+        let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+
+        let!(:discountA1) { create :discount, { percentage: 20, quantity: 12, merchant_id: merchantA.id } }
+        let!(:discountA2) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchantA.id } }
+
+        before :each do
+          visit merchant_invoice_path(merchantA, invoice)
+        end
+
+        it 'has the discounted total' do
+          expect(page).to have_content('Discounted Total: $35.10')
+          expect(page).to have_content('Total: $42.00')
+        end
+
+        it 'has a link to the discount applied to the item' do
+          within "#inv_item-#{inv_itemB.id}" do
+            expect(page).to have_content('No Discount Applied')
+          end
+
+          within "#inv_item-#{inv_itemA1.id}" do
+            expect(page).to have_link(discountA1.id)
+          end
+
+          within "#inv_item-#{inv_itemA2.id}" do
+            expect(page).to have_link(discountA2.id)
+
+            click_on discountA2.id
+          end
+
+          expect(current_path).to eq(merchant_discount_path(merchantA, discountA2))
+        end
+      end
+    end
+  end
 end
