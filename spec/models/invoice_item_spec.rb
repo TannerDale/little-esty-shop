@@ -51,42 +51,4 @@ RSpec.describe InvoiceItem, type: :model do
       expect(InvoiceItem.revenue).to eq(450)
     end
   end
-
-  describe 'i hate myself' do
-    let!(:customer) { create :customer }
-    let!(:invoice) { create :invoice, { customer_id: customer.id } }
-    let!(:merchant) { create :merchant }
-    let!(:merchant2) { create :merchant }
-
-    let!(:item1) { create :item, { merchant_id: merchant.id } }
-    let!(:item2) { create :item, { merchant_id: merchant.id } }
-    let!(:item3) { create :item, { merchant_id: merchant2.id } }
-    let!(:item4) { create :item, { merchant_id: merchant2.id } }
-
-    let!(:transaction1) { create :transaction, { invoice_id: invoice.id, result: 0 } }
-    let!(:transaction2) { create :transaction, { invoice_id: invoice.id, result: 0 } }
-
-    let!(:inv_item1) do
-      create :invoice_item, { item_id: item1.id, invoice_id: invoice.id, status: 0, quantity: 6, unit_price: 100 }
-    end
-    let!(:inv_item2) do
-      create :invoice_item, { item_id: item2.id, invoice_id: invoice.id, status: 1, quantity: 6, unit_price: 100 }
-    end
-    let!(:inv_item3) do
-      create :invoice_item, { item_id: item3.id, invoice_id: invoice.id, status: 1, quantity: 5, unit_price: 150 }
-    end
-    let!(:inv_item4) do
-      create :invoice_item, { item_id: item3.id, invoice_id: invoice.id, status: 0, quantity: 7, unit_price: 150 }
-    end
-
-    let!(:discount1) { create :discount, { merchant_id: merchant.id, quantity: 10 } }
-    let!(:discount2) { create :discount, { merchant_id: merchant2.id, quantity: 10 } }
-
-    it 'has the discounts' do
-      result = invoice.invoice_items.discounted
-      result = result.map(&:discount_item).uniq.map { |i| Merchant.find(Item.find(i).merchant_id) }.uniq
-
-      expect(result).to eq([merchant, merchant2]).or eq([merchant2, merchant])
-    end
-  end
 end
