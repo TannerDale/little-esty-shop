@@ -27,7 +27,7 @@ class DiscountsController < ApplicationController
   def edit; end
 
   def update
-    if @discount.update(discount_params.merge({ merchant_id: @merchant.id }))
+    if @discount.update(discount_params)
       flash[:success] = 'Discount Updated'
       redirect_to merchant_discount_path(@merchant, @discount)
     else
