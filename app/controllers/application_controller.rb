@@ -2,8 +2,7 @@
 
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
-  helper_method :current_user
-  before_action :github_api_data
+  helper_method :current_user, :github_api_data
 
   private
 
