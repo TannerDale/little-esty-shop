@@ -137,7 +137,9 @@ RSpec.describe 'Merchant Items Index Page' do
           expect(page).to have_link(item9.name)
           expect(page).to have_link(item10.name)
 
-          click_on item6.name
+          within "#item-#{item6.id}" do
+            click_on item6.name
+          end
         end
         expect(current_path).to eq(merchant_item_path(@merchant, item6))
       end
