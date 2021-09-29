@@ -264,36 +264,30 @@ RSpec.describe Invoice, type: :model do
       end
     end
 
-    describe 'example 5 pt 2' do
+    describe 'adding discounted price to invoice items' do
       let!(:customer) { create :customer }
-      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:invoice) { create :invoice, { customer_id: customer.id, status: 1 } }
       let!(:merchantA) { create :merchant }
-      let!(:merchantB) { create :merchant }
 
       let!(:itemA1) { create :item, { merchant_id: merchantA.id } }
       let!(:itemA2) { create :item, { merchant_id: merchantA.id } }
-      let!(:itemB) { create :item, { merchant_id: merchantB.id } }
 
       # 12
       let!(:inv_itemA1) { create :invoice_item, { item_id: itemA1.id, invoice_id: invoice.id, quantity: 12, unit_price: 100 } }
       # 15
       let!(:inv_itemA2) { create :invoice_item, { item_id: itemA2.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
       # 15
-      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
 
       let!(:discountA1) { create :discount, { percentage: 20, quantity: 12, merchant_id: merchantA.id } }
-      let!(:discountA2) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchantA.id } }
-      let!(:discountB) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchantB.id } }
 
-      it 'discountA1 to inv_itemA1, discountA2 to inv_itemA2' do
-        result = invoice.discounts_and_discounted_total
-        discounted = 3060
-        expect(result.keys - [:discounted_total, inv_itemA1.id, inv_itemA2.id, inv_itemB.id]).to be_empty
+      it 'can add a discounted price to its invoice items' do
+        invoice.lock_discounted_prices
 
-        expect(result[:discounted_total]).to eq(discounted)
-        expect(result[inv_itemA1.id]).to have_value(discountA1.id)
-        expect(result[inv_itemA2.id]).to have_value(discountA2.id)
-        expect(result[inv_itemB.id]).to have_value(discountB.id)
+        inv_itemA1.reload
+        inv_itemA2.reload
+
+        expect(inv_itemA1.discounted_price).to eq(960)
+        expect(inv_itemA2.discounted_price).to eq(1200)
       end
     end
   end
