@@ -5,8 +5,10 @@ require 'rails_helper'
 RSpec.describe Item, type: :model do
   describe 'relationships' do
     it { should belong_to(:merchant) }
+    it { should have_many(:discounts).through(:merchant) }
     it { should have_many(:invoice_items) }
     it { should have_many(:invoices).through(:invoice_items) }
+    it { should have_many(:transactions).through(:invoices) }
 
     it 'validates default disabled status' do
       item = create(:item)
@@ -24,7 +26,13 @@ RSpec.describe Item, type: :model do
     end
 
     it 'returns items by status disabled' do
-      expect(@merchant_a.items.by_status('disabled')).to eq([@item_b, @item_c, @item_d])
+      result = @merchant_a.items.by_status('disabled')
+
+      expected = [@item_b, @item_c, @item_d]
+      result.all? do |item|
+        expect(expected.include?(item)).to be true
+      end
+      expect(result.length).to eq(3)
     end
 
     it 'returns items by status enabled' do

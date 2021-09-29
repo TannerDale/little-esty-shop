@@ -9,6 +9,7 @@
   <p>Created at: <%= @invoice.created_at.strftime("%A, %B %e, %Y") %></p>
   <p>Customer: <%= @invoice.customer.first_name + " " + @invoice.customer.last_name%></p>
   <p>Total Revenue: <%= number_to_currency(@invoice.total_revenue.fdiv(100)) %></p>
+  <p>Discounted Revenue: <%= number_to_currency(@invoice.discounts_and_discounted_total[:discounted_total].fdiv(100)) %></p>
 </div>
 
 <div id="items-attr">

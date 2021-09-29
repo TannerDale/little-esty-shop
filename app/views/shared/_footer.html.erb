@@ -6,9 +6,9 @@
     </a>
 
     <ul class="nav col-md-4 justify-content-end">
-      <% cache :github_footer, expires_in: 2.minutes do %>
-        <li>Link for repo: <%= link_to @github_api_data.repo_name, 'https://github.com/TannerDale/little-esty-shop' %></li>
-        <li class="nav-item"><p class="nav-link px-2 text-muted">Collaborators: <%= @github_api_data.repo_names_and_commits.to_sentence %>, generating <%= @github_api_data.pulls_count %> pull requests.</p></li>
+      <% cache :github_api_data, expires_in: 2.minutes do %>
+        <li>Link for repo: <%= link_to github_api_data.repo_name, 'https://github.com/TannerDale/little-esty-shop' %></li>
+        <li class="nav-item"><p class="nav-link px-2 text-muted">Collaborators: <%= github_api_data.repo_names_and_commits.to_sentence %>, generating <%= github_api_data.pulls_count %> pull requests.</p></li>
       <% end %>
     </ul>
   </footer>

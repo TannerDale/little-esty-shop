@@ -9,6 +9,6 @@ class InvoicesController < ApplicationController
 
   def show
     @invoice = Invoice.find(params[:id])
-    @invoice_items = @invoice.invoice_items
+    @discounts = @invoice.discounts_and_discounted_total
   end
 end

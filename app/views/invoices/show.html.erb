@@ -15,7 +15,10 @@
       <p>Customer Name: <%= @invoice.customer.full_name %></p>
     </div>
     <div class="col border">
-      <p>Total Revenue: <%= number_to_currency(@invoice.total_revenue) %></p>
+      <p>Total: <%= number_to_currency(@invoice.total_revenue.fdiv(100)) %></p>
+    </div>
+    <div class="col border">
+      <p>Discounted Total: <%= number_to_currency(@discounts[:discounted_total].fdiv(100)) %></p>
     </div>
   </div>
 </div><br>
@@ -26,21 +29,29 @@
       <th scope="col">Item Name</th>
       <th scope="col">Quantity</th>
       <th scope="col">Unit Price</th>
+      <th scope="col">Applied Discount</th>
       <th scope="col">Status</th>
     </tr>
   </thead>
   <tbody>
-    <% @invoice_items.each do |inv_item|  %>
+    <% @invoice.invoice_items.each do |inv_item|  %>
     <tr>
       <td><%= inv_item.item.name %></td>
       <td><%= inv_item.quantity %></td>
       <td><%= number_to_currency(inv_item.unit_price.fdiv(100)) %></td>
-      <td><div id="inv_item-<%= inv_item.id %>">
+      <div id="inv_item-<%= inv_item.id %>">
+      <% if @discounts[inv_item.id] %>
+        <td><%= link_to @discounts[inv_item.id][:id], merchant_discount_path(inv_item.merchant.id, @discounts[inv_item.id][:id]) %></td>
+      <% else %>
+        <td>No Discount Applied</td>
+      <% end %>
+      <td>
           <%= form_with model: [@merchant, inv_item], local: true do |f| %>
             <%= f.select(:status, ['pending', 'packaged', 'shipped'], value: inv_item.status) %>
             <%= f.submit 'Update' %>
           <% end %>
-        </div></td>
+        </td>
+      </div>
     </tr>
     <% end %>
   </tbody>

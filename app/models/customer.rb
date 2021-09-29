@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Customer < ApplicationRecord
-  self.primary_key = :id
-
   has_many :invoices, dependent: :destroy
   has_many :transactions, through: :invoices
   has_many :invoice_items, through: :invoices
@@ -11,7 +9,7 @@ class Customer < ApplicationRecord
 
   def self.top_5_customers
     joins(:transactions)
-      .merge(Transaction.successful)
+      .merge(Transaction.success)
       .group(:id)
       .limit(5)
       .merge(Invoice.transactions_count)
@@ -19,7 +17,7 @@ class Customer < ApplicationRecord
       .full_names
   end
 
-  scope :full_names, lambda {
+  scope :full_names, -> {
     select("customers.first_name || ' ' || customers.last_name AS customer_name")
   }
 

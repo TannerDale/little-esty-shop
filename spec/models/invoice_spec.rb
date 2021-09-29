@@ -7,6 +7,8 @@ RSpec.describe Invoice, type: :model do
     it { should belong_to(:customer) }
     it { should have_many(:invoice_items) }
     it { should have_many(:items).through(:invoice_items) }
+    it { should have_many(:merchants).through(:items) }
+    it { should have_many(:discounts).through(:merchants) }
     it { should have_many(:transactions) }
   end
 
@@ -85,6 +87,213 @@ RSpec.describe Invoice, type: :model do
 
       it '#total_revenues' do
         expect(invoice.total_revenue).to eq(700)
+      end
+    end
+  end
+
+  describe 'discounts' do
+    describe 'example 1' do
+      let!(:customer) { create :customer }
+      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:merchant) { create :merchant }
+
+      let!(:itemA) { create :item, { merchant_id: merchant.id } }
+      let!(:itemB) { create :item, { merchant_id: merchant.id } }
+
+       # 5
+      let!(:inv_itemA) { create :invoice_item, { item_id: itemA.id, invoice_id: invoice.id, quantity: 5, unit_price: 100 } }
+      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 5, unit_price: 100 } }
+      # 5
+
+      let!(:discount) { create :discount, { percentage: 20, quantity: 10, merchant_id: merchant.id } }
+
+      it 'has no discount' do
+        result = invoice.discounts_and_discounted_total
+        discounted = 1000
+
+        expect(result.keys - [:discounted_total]).to be_empty
+
+        expect(result[:discounted_total]).to eq(discounted)
+      end
+    end
+
+    describe 'example 2' do
+      let!(:customer) { create :customer }
+      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:merchant) { create :merchant }
+
+      let!(:itemA) { create :item, { merchant_id: merchant.id } }
+      let!(:itemB) { create :item, { merchant_id: merchant.id } }
+
+      # 10
+      let!(:inv_itemA) { create :invoice_item, { item_id: itemA.id, invoice_id: invoice.id, quantity: 10, unit_price: 100 } }
+      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 5, unit_price: 100 } }
+      # 5
+
+      let!(:discount) { create :discount, { percentage: 20, quantity: 10, merchant_id: merchant.id } }
+
+      it 'has one discount to item A' do
+        result = invoice.discounts_and_discounted_total
+        discounted = 1300
+
+        expect(result.keys - [:discounted_total]).to eq([inv_itemA.id])
+
+        expect(result[:discounted_total]).to eq(discounted)
+        expect(result[inv_itemA.id]).to have_value(discount.id)
+      end
+    end
+
+    describe 'example 3' do
+      let!(:customer) { create :customer }
+      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:merchant) { create :merchant }
+
+      let!(:itemA) { create :item, { merchant_id: merchant.id } }
+      let!(:itemB) { create :item, { merchant_id: merchant.id } }
+
+      # 12
+      let!(:inv_itemA) { create :invoice_item, { item_id: itemA.id, invoice_id: invoice.id, quantity: 12, unit_price: 100 } }
+      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+      # 15
+
+      let!(:discountA) { create :discount, { percentage: 20, quantity: 10, merchant_id: merchant.id } }
+      let!(:discountB) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchant.id } }
+
+      describe 'full results' do
+        it 'discountA to inv_itemA, discountB to inv_itemB' do
+          result = invoice.discounts_and_discounted_total
+          discounted = 2010
+
+          expect(result.keys - [:discounted_total]).to eq([inv_itemB.id, inv_itemA.id])
+          expect(result[:discounted_total]).to eq(discounted)
+          expect(result[inv_itemA.id]).to have_value(discountA.id)
+          expect(result[inv_itemB.id]).to have_value(discountB.id)
+        end
+      end
+
+      describe 'helper methods' do
+        it 'has discounts and totals' do
+          result = invoice.inv_item_discounts
+
+          expect(result.length).to eq(3)
+        end
+
+        it 'has discount and amount off per invoice item' do
+          result = invoice.discount_and_total
+
+          expect(result[inv_itemA.id][:id]).to eq(discountA.id)
+          expect(result[inv_itemB.id][:id]).to eq(discountB.id)
+
+          expect(result[inv_itemA.id][:amount_off]).to eq(240)
+          expect(result[inv_itemB.id][:amount_off]).to eq(450)
+        end
+
+        it 'has discount info' do
+          result = invoice.discounts_and_discounted_total
+          discounted = 2010
+
+          expect(result.keys - [:discounted_total]).to eq([inv_itemB.id, inv_itemA.id])
+          expect(result[:discounted_total]).to eq(discounted)
+          expect(result[inv_itemA.id]).to have_value(discountA.id)
+          expect(result[inv_itemB.id]).to have_value(discountB.id)
+        end
+      end
+    end
+
+    describe 'example 4' do
+      let!(:customer) { create :customer }
+      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:merchant) { create :merchant }
+
+      let!(:itemA) { create :item, { merchant_id: merchant.id } }
+      let!(:itemB) { create :item, { merchant_id: merchant.id } }
+
+      # 12
+      let!(:inv_itemA) { create :invoice_item, { item_id: itemA.id, invoice_id: invoice.id, quantity: 12, unit_price: 100 } }
+      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+      # 15
+
+      let!(:discountA) { create :discount, { percentage: 20, quantity: 12, merchant_id: merchant.id } }
+      let!(:discountB) { create :discount, { percentage: 15, quantity: 15, merchant_id: merchant.id } }
+
+      it 'discountA to inv_itemA and inv_itemB' do
+        result = invoice.discounts_and_discounted_total
+        discounted = 2160
+
+        expect(result.keys - [:discounted_total])
+          .to eq([inv_itemB.id, inv_itemA.id])
+          .or eq([inv_itemA.id, inv_itemB.id])
+
+        expect(result[:discounted_total]).to eq(discounted)
+        expect(result[inv_itemA.id]).to have_value(discountA.id)
+        expect(result[inv_itemB.id]).to have_value(discountA.id)
+      end
+    end
+
+    describe 'example 5' do
+      let!(:customer) { create :customer }
+      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:merchantA) { create :merchant }
+      let!(:merchantB) { create :merchant }
+
+      let!(:itemA1) { create :item, { merchant_id: merchantA.id } }
+      let!(:itemA2) { create :item, { merchant_id: merchantA.id } }
+      let!(:itemB) { create :item, { merchant_id: merchantB.id } }
+
+      # 12
+      let!(:inv_itemA1) { create :invoice_item, { item_id: itemA1.id, invoice_id: invoice.id, quantity: 12, unit_price: 100 } }
+      # 15
+      let!(:inv_itemA2) { create :invoice_item, { item_id: itemA2.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+      # 15
+      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+
+      let!(:discountA1) { create :discount, { percentage: 20, quantity: 12, merchant_id: merchantA.id } }
+      let!(:discountA2) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchantA.id } }
+
+      it 'discountA1 to inv_itemA1, discountA2 to inv_itemA2' do
+        result = invoice.discounts_and_discounted_total
+        discounted = 3510
+
+        expect(result.keys - [:discounted_total])
+          .to eq([inv_itemA1.id, inv_itemA2.id])
+          .or eq([inv_itemA2.id, inv_itemA1.id])
+
+        expect(result[:discounted_total]).to eq(discounted)
+        expect(result[inv_itemA1.id]).to have_value(discountA1.id)
+        expect(result[inv_itemA2.id]).to have_value(discountA2.id)
+      end
+    end
+
+    describe 'example 5 pt 2' do
+      let!(:customer) { create :customer }
+      let!(:invoice) { create :invoice, { customer_id: customer.id } }
+      let!(:merchantA) { create :merchant }
+      let!(:merchantB) { create :merchant }
+
+      let!(:itemA1) { create :item, { merchant_id: merchantA.id } }
+      let!(:itemA2) { create :item, { merchant_id: merchantA.id } }
+      let!(:itemB) { create :item, { merchant_id: merchantB.id } }
+
+      # 12
+      let!(:inv_itemA1) { create :invoice_item, { item_id: itemA1.id, invoice_id: invoice.id, quantity: 12, unit_price: 100 } }
+      # 15
+      let!(:inv_itemA2) { create :invoice_item, { item_id: itemA2.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+      # 15
+      let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 15, unit_price: 100 } }
+
+      let!(:discountA1) { create :discount, { percentage: 20, quantity: 12, merchant_id: merchantA.id } }
+      let!(:discountA2) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchantA.id } }
+      let!(:discountB) { create :discount, { percentage: 30, quantity: 15, merchant_id: merchantB.id } }
+
+      it 'discountA1 to inv_itemA1, discountA2 to inv_itemA2' do
+        result = invoice.discounts_and_discounted_total
+        discounted = 3060
+        expect(result.keys - [:discounted_total, inv_itemA1.id, inv_itemA2.id, inv_itemB.id]).to be_empty
+
+        expect(result[:discounted_total]).to eq(discounted)
+        expect(result[inv_itemA1.id]).to have_value(discountA1.id)
+        expect(result[inv_itemA2.id]).to have_value(discountA2.id)
+        expect(result[inv_itemB.id]).to have_value(discountB.id)
       end
     end
   end

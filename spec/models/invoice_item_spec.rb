@@ -6,6 +6,8 @@ RSpec.describe InvoiceItem, type: :model do
   describe 'validations' do
     it { belong_to :item }
     it { belong_to :invoice }
+    it { have_one(:merchant).through :item }
+    it { have_many(:discounts).through :merchant }
     it { should validate_presence_of :status }
   end
 
