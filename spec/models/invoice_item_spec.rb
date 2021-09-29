@@ -51,4 +51,24 @@ RSpec.describe InvoiceItem, type: :model do
       expect(InvoiceItem.revenue).to eq(450)
     end
   end
+
+  describe 'discounts' do
+    let!(:customer) { create :customer }
+    let!(:invoice) { create :invoice, { customer_id: customer.id } }
+    let!(:merchant) { create :merchant }
+
+    let!(:itemA) { create :item, { merchant_id: merchant.id } }
+    let!(:itemB) { create :item, { merchant_id: merchant.id } }
+
+    # 5
+    let!(:inv_itemA) { create :invoice_item, { item_id: itemA.id, invoice_id: invoice.id, quantity: 5, unit_price: 100 } }
+    let!(:inv_itemB) { create :invoice_item, { item_id: itemB.id, invoice_id: invoice.id, quantity: 5, unit_price: 100 } }
+    # 5
+
+    let!(:discount) { create :discount, { merchant_id: merchant.id, quantity: 5, percentage: 20 } }
+
+    it 'has a discounted total' do
+      expect(inv_itemA.amount_off.first.discounted).to eq(20)
+    end
+  end
 end

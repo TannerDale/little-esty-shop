@@ -29,4 +29,16 @@ class InvoiceItem < ApplicationRecord
   def revenue
     unit_price * quantity
   end
+
+  def amount_off
+    discounts
+      .having('quantity >= discounts.quantity')
+      .select('MAX(discounts.percentage) AS discounted')
+      .group(:id, :unit_price)
+  end
+
+  def lock_discounted_price
+    new_price = (unit_price * (1 - amount_off.first.discounted.fdiv(100)))
+    update_attribute(:discounted_price, new_price * quantity)
+  end
 end
